@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Dashboard - {{PRODUCT}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --font-display: "Fraunces", serif;
+        --font-body: "DM Sans", sans-serif;
+
+        --color-ink: #0a0a0a;
+        --color-paper: #faf9f6;
+        --color-accent: #e63946;
+        --color-success: #2d6a4f;
+        --color-warning: #e9c46a;
+        --color-muted: #6b705c;
+        --color-border: #d4d1c7;
+
+        --shadow-soft: 0 4px 20px rgba(10, 10, 10, 0.08);
+        --shadow-lifted: 0 12px 40px rgba(10, 10, 10, 0.12);
+
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration: 0.4s;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--color-paper);
+        color: var(--color-ink);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      /* Subtle grain texture overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      .dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 60px 40px;
+      }
+
+      /* Header with editorial flair */
+      .header {
+        margin-bottom: 80px;
+        position: relative;
+      }
+
+      .header::after {
+        content: "";
+        position: absolute;
+        bottom: -40px;
+        left: 0;
+        width: 120px;
+        height: 4px;
+        background: var(--color-accent);
+      }
+
+      .header h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+      }
+
+      .header p {
+        font-size: 1.25rem;
+        color: var(--color-muted);
+        max-width: 500px;
+      }
+
+      /* Progress indicator - editorial style */
+      .progress-section {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-top: 32px;
+        padding: 24px 0;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .progress-label {
+        font-family: var(--font-display);
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--color-accent);
+        line-height: 1;
+      }
+
+      .progress-text {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-muted);
+      }
+
+      .progress-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--color-border);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--color-ink);
+        border-radius: 3px;
+        transition: width 0.8s var(--ease-out);
+      }
+
+      /* Phase sections */
+      .phase {
+        margin-bottom: 60px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s var(--ease-out) forwards;
+      }
+
+      .phase:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .phase:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .phase:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .phase-header {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .phase-number {
+        font-family: var(--font-display);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-accent);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+      }
+
+      .phase-title {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 600;
+      }
+
+      .phase-description {
+        color: var(--color-muted);
+        font-size: 0.9375rem;
+        margin-left: auto;
+      }
+
+      /* Document cards */
+      .document-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .document-card {
+        background: white;
+        border: 1px solid var(--color-border);
+        padding: 28px;
+        transition: all var(--duration) var(--ease-out);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .document-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--color-border);
+        transition: background var(--duration) var(--ease-out);
+      }
+
+      .document-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lifted);
+      }
+
+      .document-card:hover::before {
+        background: var(--color-accent);
+      }
+
+      .document-card.available::before {
+        background: var(--color-success);
+      }
+
+      .document-card.pending::before {
+        background: var(--color-warning);
+      }
+
+      .document-title {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .document-description {
+        font-size: 0.9375rem;
+        color: var(--color-muted);
+        margin-bottom: 20px;
+        line-height: 1.7;
+      }
+
+      .document-actions {
+        display: flex;
+        gap: 12px;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.25s var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: var(--color-ink);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--color-accent);
+        transform: translateX(4px);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--color-ink);
+        border: 1px solid var(--color-border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--color-ink);
+      }
+
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .btn::after {
+        content: "->";
+        transition: transform 0.25s var(--ease-out);
+      }
+
+      .btn:hover::after {
+        transform: translateX(4px);
+      }
+
+      /* Status badges */
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-family: var(--font-body);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .status-complete {
+        background: var(--color-success);
+        color: white;
+      }
+
+      .status-pending {
+        background: var(--color-warning);
+        color: var(--color-ink);
+      }
+
+      .status-not-started {
+        background: var(--color-border);
+        color: var(--color-muted);
+      }
+
+      /* Footer */
+      .footer {
+        margin-top: 80px;
+        padding-top: 40px;
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .footer p {
+        font-size: 0.875rem;
+        color: var(--color-muted);
+      }
+
+      .footer-brand {
+        font-family: var(--font-display);
+        font-weight: 600;
+        color: var(--color-ink);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard {
+          padding: 40px 24px;
+        }
+
+        .phase-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .phase-description {
+          margin-left: 0;
+        }
+
+        .progress-section {
+          flex-wrap: wrap;
+        }
+
+        .footer {
+          flex-direction: column;
+          gap: 16px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard">
+      <header class="header">
+        <h1>{{PRODUCT}}</h1>
+        <p>
+          Product Development Dashboard — Track progress from concept to
+          clickable prototype
+        </p>
+
+        <div class="progress-section">
+          <div>
+            <div class="progress-label">{{PROGRESSPERCENTAGE}}%</div>
+            <div class="progress-text">Complete</div>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              style="width: {{PROGRESSPERCENTAGE}}%"
+            ></div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- Phase 1: Market Research -->
+        <section class="phase">
+          <div class="phase-header">
+            <span class="phase-number">Phase 01</span>
+            <h2 class="phase-title">Market Research</h2>
+            <span class="phase-description"
+              >Competitive analysis & market validation</span
+            >
+          </div>
+          <div class="document-grid">
+            <div class="document-card {{MARKETRESEARCHSTATUS}}">
+              <div class="document-title">
+                Research Brief
+                <span class="status-badge status-{{MARKETRESEARCHSTATUSCLASS}}"
+                  >{{MARKETRESEARCHSTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Market sizing, competitor analysis, customer pain points, and
+                pricing benchmarks.
+              </div>
+              <div class="document-actions">
+                <a
+                  href="{{MARKETRESEARCHPATH}}"
+                  class="btn btn-primary"
+                  {{MARKETRESEARCHDISABLED}}
+                  >View Research</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Phase 2: PRFAQ -->
+        <section class="phase">
+          <div class="phase-header">
+            <span class="phase-number">Phase 02</span>
+            <h2 class="phase-title">PRFAQ</h2>
+            <span class="phase-description">Working Backwards methodology</span>
+          </div>
+          <div class="document-grid">
+            <div class="document-card {{PRFAQSTATUS}}">
+              <div class="document-title">
+                Press Release & FAQ
+                <span class="status-badge status-{{PRFAQSTATUSCLASS}}"
+                  >{{PRFAQSTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Customer-focused narrative defining the product vision and value
+                proposition.
+              </div>
+              <div class="document-actions">
+                <a
+                  href="{{PRFAQHTMLPATH}}"
+                  class="btn btn-primary"
+                  {{PRFAQDISABLED}}
+                  >View HTML</a
+                >
+                <a
+                  href="{{PRFAQMARKDOWNPATH}}"
+                  class="btn btn-secondary"
+                  {{PRFAQDISABLED}}
+                  >Markdown</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Phase 3: PRD -->
+        <section class="phase">
+          <div class="phase-header">
+            <span class="phase-number">Phase 03</span>
+            <h2 class="phase-title">Requirements</h2>
+            <span class="phase-description">Product specifications</span>
+          </div>
+          <div class="document-grid">
+            <div class="document-card {{PRDSTATUS}}">
+              <div class="document-title">
+                PRD Document
+                <span class="status-badge status-{{PRDSTATUSCLASS}}"
+                  >{{PRDSTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Detailed requirements including features, personas, success
+                metrics, and acceptance criteria.
+              </div>
+              <div class="document-actions">
+                <a href="{{PRDHTMLPATH}}" class="btn btn-primary" {{PRDDISABLED}}
+                  >View HTML</a
+                >
+                <a
+                  href="{{PRDMARKDOWNPATH}}"
+                  class="btn btn-secondary"
+                  {{PRDDISABLED}}
+                  >Markdown</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Phase 4: Prototype -->
+        <section class="phase">
+          <div class="phase-header">
+            <span class="phase-number">Phase 04</span>
+            <h2 class="phase-title">Prototype</h2>
+            <span class="phase-description">Interactive validation</span>
+          </div>
+          <div class="document-grid">
+            <div class="document-card {{PROTOTYPESTATUS}}">
+              <div class="document-title">
+                Clickable Prototype
+                <span class="status-badge status-{{PROTOTYPESTATUSCLASS}}"
+                  >{{PROTOTYPESTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Fully interactive prototype demonstrating all user workflows and
+                features.
+              </div>
+              <div class="document-actions">
+                <a
+                  href="{{CLICKABLEPROTOTYPEPATH}}"
+                  class="btn btn-primary"
+                  {{PROTOTYPEDISABLED}}
+                  >Launch Prototype</a
+                >
+                <a
+                  href="{{PROTOTYPESPECPATH}}"
+                  class="btn btn-secondary"
+                  {{PROTOTYPEDISABLED}}
+                  >Specs</a
+                >
+              </div>
+            </div>
+
+            <div class="document-card {{DESIGNSYSTEMSTATUS}}">
+              <div class="document-title">
+                Design System
+                <span class="status-badge status-{{DESIGNSYSTEMSTATUSCLASS}}"
+                  >{{DESIGNSYSTEMSTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Visual guidelines, component library, and styling
+                specifications.
+              </div>
+              <div class="document-actions">
+                <a
+                  href="{{DESIGNSYSTEMPATH}}"
+                  class="btn btn-primary"
+                  {{DESIGNSYSTEMDISABLED}}
+                  >View System</a
+                >
+              </div>
+            </div>
+
+            <div class="document-card {{SCREENSSTATUS}}">
+              <div class="document-title">
+                Screen Library
+                <span class="status-badge status-{{SCREENSSTATUSCLASS}}"
+                  >{{SCREENSSTATUSTEXT}}</span
+                >
+              </div>
+              <div class="document-description">
+                Individual screen designs and detailed specifications.
+              </div>
+              <div class="document-actions">
+                <button
+                  onclick="showScreens()"
+                  class="btn btn-primary"
+                  {{SCREENSDISABLED}}
+                >
+                  Browse Screens
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Last updated: {{LASTUPDATED}}</p>
+        <p class="footer-brand">Product Team's Toolchest</p>
+      </footer>
+    </div>
+
+    <script>
+      function showScreens() {
+        const screens = {{SCREENSLIST}};
+        if (screens.length === 0) {
+          alert("No individual screens available yet.");
+          return;
+        }
+
+        const screenList = screens
+          .map(
+            (screen) =>
+              `<a href="${screen.path}" style="display:block;padding:12px 0;border-bottom:1px solid #d4d1c7;color:#0a0a0a;text-decoration:none;" onmouseover="this.style.color='#e63946'" onmouseout="this.style.color='#0a0a0a'">${screen.name} -></a>`,
+          )
+          .join("");
+
+        const popup = window.open("", "screens", "width=450,height=600");
+        popup.document.write(`
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>Screen Library</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="font-family:'DM Sans',sans-serif;padding:40px;background:#faf9f6;color:#0a0a0a;">
+                        <h2 style="font-family:'Fraunces',serif;font-size:1.75rem;margin-bottom:24px;">Screen Library</h2>
+                        <div>${screenList}</div>
+                    </body>
+                </html>
+            `);
+      }
+    </script>
+  </body>
+</html>

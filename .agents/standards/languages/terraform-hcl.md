@@ -1,0 +1,23 @@
+# Terraform HCL Coding Standards
+
+- Use for `terraform fmt`, `terraform validate`, and `tflint` to enforce standards.
+- Specify resource lifecycle customisations (e.g., `prevent_destroy`) for critical resources.
+- Mark sensitive outputs with `sensitive = true` to avoid leaking secrets.
+- Avoid hardcoding sensitive values; use variables or secrets management.
+- Use version constraints for providers and modules.
+- Validate changes with `terraform plan` before applying.
+- Format code using `terraform fmt` before committing.
+- Avoid using deprecated or experimental features.
+- Use variables for values that may change between environments.
+- Use outputs to expose only important resource attributes.
+- Prefer explicit dependencies using `depends_on` when needed.
+- Use data sources to reference existing infrastructure.
+- Keep modules small, focused, and reusable.
+- Use descriptive names for resources and variables.
+- Add comments to explain complex logic or intent.
+- Use locals for computed values used in multiple places.
+- Group related resources in the same file or module.
+- Use consistent indentation with 2 spaces recommended.
+- Use lowercase for resource, variable, and output names.
+- Use underscores (_) to separate words in names.
+- Always use double quotes for strings.
